@@ -1,0 +1,252 @@
+Smart Tea Vending Machine with AI Integration
+
+Project Overview
+
+The Smart Tea Vending Machine is an automated system designed to prepare customized teas based on user preferences. It incorporates AI to learn from user feedback and make personalized recommendations. This project involves hardware components like peristaltic pumps, solenoid valves, heating elements, and a Raspberry Pi microcontroller. The user interacts with the machine through a touchscreen interface, where they can select from various tea recipes.
+
+Components List
+
+Hardware Components:
+
+Raspberry Pi: Central control unit running the GUI and controlling other components.
+Touchscreen Display: For user interaction.
+Peristaltic Pumps: For dispensing water and milk.
+Solenoid Valves: For controlling the flow of liquids.
+Stepper Motors/DC Motors: For dispensing spices.
+Heating Element: For boiling water.
+Temperature Sensor: For monitoring water temperature.
+Relays: To control high-power devices like pumps and heating elements.
+Power Supply: To power the Raspberry Pi and other components.
+
+Software Components:
+
+Python: For implementing the GUI and controlling the hardware.
+Tkinter: For creating the user interface.
+RPi.GPIO: For controlling the GPIO pins of the Raspberry Pi.
+JSON: For storing user feedback and preferences.
+
+
+
+Detailed Report on Smart Tea Vending Machine with AI Integration
+Project Overview
+The Smart Tea Vending Machine is an automated system designed to prepare customized teas based on user preferences. It incorporates AI to learn from user feedback and make personalized recommendations. This project involves hardware components like peristaltic pumps, solenoid valves, heating elements, and a Raspberry Pi microcontroller. The user interacts with the machine through a touchscreen interface, where they can select from various tea recipes.
+
+Components List
+Hardware Components:
+
+Raspberry Pi: Central control unit running the GUI and controlling other components.
+Touchscreen Display: For user interaction.
+Peristaltic Pumps: For dispensing water and milk.
+Solenoid Valves: For controlling the flow of liquids.
+Stepper Motors/DC Motors: For dispensing spices.
+Heating Element: For boiling water.
+Temperature Sensor: For monitoring water temperature.
+Relays: To control high-power devices like pumps and heating elements.
+Power Supply: To power the Raspberry Pi and other components.
+Software Components:
+
+Python: For implementing the GUI and controlling the hardware.
+Tkinter: For creating the user interface.
+RPi.GPIO: For controlling the GPIO pins of the Raspberry Pi.
+JSON: For storing user feedback and preferences.
+
+
+System Block Diagram
+
+
++--------------------------+
+|      User Interface      |
+| +----------------------+ |
+| |  Touchscreen Display  | |
+| |      & Buttons        | |
+| +----------------------+ |
++------------|-------------+
+             |
+             v
++--------------------------+
+|     Microcontroller      |
+|       (Raspberry Pi)     |
+| +----------------------+ |
+| |   Python GUI & AI    | |
+| +----------------------+ |
+| |    GPIO Control      | |
++----|---------|----------+
+     |         | 
+     |         | 
+     v         v
++---------------------+    +--------------------------+
+| Dispensing Mechanism|    |   Heating Mechanism      |
+| +-----------------+ |    | +----------------------+ |
+| | Peristaltic     | |    | |  Heating Element      | |
+| | Pumps (Water,   | |    | |  & Temperature Sensor | |
+| | Milk)           | |    | +----------------------+ |
+| +-----------------+ |    +--------------------------+
+| +-----------------+ |
+| | Solenoid Valves | |
+| +-----------------+ |
+| +-----------------+ |
+| | Spice Dispensers| |
+| | (Stepper Motors)| |
+| +-----------------+ |
++---------------------+
+             |
+             v
++--------------------------+
+|      Power Supply        |
+|  +---------------------+ |
+|  |  Power Management   | |
+|  +---------------------+ |
++--------------------------+
+             |
+             v
++--------------------------+
+| AI and Machine Learning  |
+| +----------------------+ |
+| |  Feedback Collection | |
+| |  Model Training      | |
+| |  Recommendations     | |
+| +----------------------+ |
++--------------------------+
+
+
+Circuit Diagram
+
+Raspberry Pi GPIO Connections:
+Connect GPIO pins to the relays controlling the peristaltic pumps, solenoid valves, and heating element.
+Connect the temperature sensor to an appropriate GPIO pin.
+Connect the touchscreen display via HDMI and USB (for touch input).
+
+Relay Connections:
+
+Each relay module should be connected to the Raspberry Pi and the respective pump, valve, or heating element.
+
+
+
+Python Code
+
+This code simulates the Smart Tea Vending Machine using a graphical interface where users can select their tea preferences.
+
+
+
+import tkinter as tk
+from tkinter import messagebox
+import json
+from collections import Counter
+
+# Define tea recipes with specified combinations
+tea_recipes = {
+    "Ginger Tea": {"tea_base": "Black Tea", "spices": ["Ginger"], "milk": True},
+    "Turmeric & Cardamom Tea": {"tea_base": "Green Tea", "spices": ["Turmeric", "Cardamom"], "milk": False},
+    "Elachi Tea": {"tea_base": "Black Tea", "spices": ["Cardamom"], "milk": True},
+    "Ashwagandha Tea": {"tea_base": "Herbal Tea", "spices": ["Ashwagandha"], "milk": False},
+    "Tulasi Tea": {"tea_base": "Herbal Tea", "spices": ["Tulasi"], "milk": False},
+    "Ginger & Turmeric Tea": {"tea_base": "Black Tea", "spices": ["Ginger", "Turmeric"], "milk": True},
+    "Ginger & Cardamom Tea": {"tea_base": "Black Tea", "spices": ["Ginger", "Cardamom"], "milk": True},
+    "Turmeric & Tulasi Tea": {"tea_base": "Green Tea", "spices": ["Turmeric", "Tulasi"], "milk": False},
+    "Ashwagandha & Tulasi Tea": {"tea_base": "Herbal Tea", "spices": ["Ashwagandha", "Tulasi"], "milk": False},
+    "Ginger, Turmeric & Cardamom Tea": {"tea_base": "Black Tea", "spices": ["Ginger", "Turmeric", "Cardamom"], "milk": True},
+    "Turmeric, Cardamom & Ashwagandha Tea": {"tea_base": "Green Tea", "spices": ["Turmeric", "Cardamom", "Ashwagandha"], "milk": False},
+    "Custom": {"tea_base": "", "spices": [], "milk": False}
+}
+
+user_data_file = "user_data.json"
+
+class TeaVendingMachine:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Health Tea Vending Machine")
+        
+        self.recommended_tea = self.train_model()
+        self.selected_tea = tk.StringVar(value=self.recommended_tea if self.recommended_tea else "Ginger Tea")
+        
+        # Create radio buttons for tea selection
+        self.create_radio_buttons()
+        
+        # Button to confirm selection and prepare tea
+        self.prepare_button = tk.Button(root, text="Prepare Tea", command=self.prepare_tea)
+        self.prepare_button.pack(pady=20)
+        
+    def create_radio_buttons(self):
+        label = tk.Label(self.root, text="Please select your tea:")
+        label.pack(pady=10)
+        
+        for tea in tea_recipes.keys():
+            radio_button = tk.Radiobutton(self.root, text=tea, variable=self.selected_tea, value=tea)
+            radio_button.pack(anchor='w')
+            
+    def prepare_tea(self):
+        selected_recipe = tea_recipes[self.selected_tea.get()]
+        message = f"Preparing {self.selected_tea.get()} with {', '.join(selected_recipe['spices'])} and {'milk' if selected_recipe['milk'] else 'no milk'}."
+        messagebox.showinfo("Tea Preparation", message)
+        self.dispense_ingredients(selected_recipe)
+        self.collect_user_feedback()
+        
+    def dispense_ingredients(self, preferences):
+        self.log_message(f"Dispensing 1 tsp of {preferences['tea_base']}...")
+        for spice in preferences['spices']:
+            self.log_message(f"Dispensing 1/2 tsp of {spice}...")
+        if preferences['milk']:
+            self.log_message(f"Dispensing 100 ml of milk...")
+        self.log_message("Brewing your tea... Please wait.")
+        self.root.after(5000, lambda: messagebox.showinfo("Tea Ready", "Your tea is ready! Enjoy!"))
+
+    def log_message(self, message):
+        print(message)
+
+    def collect_user_feedback(self):
+        feedback = messagebox.askyesno("Feedback", "Did you enjoy your tea?")
+        self.save_user_data(feedback)
+        
+    def save_user_data(self, feedback):
+        user_data = {
+            "selected_tea": self.selected_tea.get(),
+            "feedback": feedback
+        }
+        try:
+            with open(user_data_file, 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            data = []
+        
+        data.append(user_data)
+        
+        with open(user_data_file, 'w') as file:
+            json.dump(data, file)
+
+    def train_model(self):
+        try:
+            with open(user_data_file, 'r') as file:
+                data = json.load(file)
+        except FileNotFoundError:
+            return None
+        
+        tea_preferences = [entry["selected_tea"] for entry in data if entry["feedback"]]
+        most_common_tea = Counter(tea_preferences).most_common(1)
+        
+        return most_common_tea[0][0] if most_common_tea else None
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = TeaVendingMachine(root)
+    root.mainloop()
+
+
+Output
+When the simulation runs successfully:
+
+The touchscreen displays the tea selection menu.
+Users can select their desired tea.
+The machine dispenses the correct amounts of water, milk, and spices.
+The heating element boils the water, and the temperature sensor monitors the temperature.
+The user is notified when their tea is ready.
+User feedback is collected and stored in a JSON file for AI model training.
+
+Conclusion
+The Smart Tea Vending Machine project combines hardware and software components to create a fully automated tea preparation system with AI-driven customization. This detailed report covers the component list, circuit diagram, Python code, simulation setup, and expected output. The integration of AI allows the machine to learn from user feedback and improve its recommendations over time, providing a personalized tea-drinking experience.
+
+
+
+
+
+
+
